@@ -2,8 +2,10 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { postTicket } from "@/app/lib/supabase";
 import { z } from "zod";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { KviteringContext } from "@/app/lib/KvitteringContext";
+import { useContext } from "react";
 const formular = z.object({
   tickets: z.array(
     z.object({
@@ -36,10 +38,11 @@ const PersonalInfoForm = ({ onNext, onBack, formData }) => {
       tickets: Array.from(
         { length: formData.vipCount + formData.regularCount },
         () => ({
-          id: crypto.randomUUID(), // Generer et unikt ID for hver billet helt genialt higkey
+          // id: crypto.randomUUID(), // Generer et unikt ID for hver billet helt genialt higkey
           name: "",
           lastname: "",
           email: "",
+          // price: 0,
           phonenumber: "",
         })
       ),
@@ -65,6 +68,9 @@ const PersonalInfoForm = ({ onNext, onBack, formData }) => {
     return formatted;
   };
 
+  // bruges til kvitriengen
+  const { setPersonalInfo } = useContext(KviteringContext); // Hent set-funktionen fra konteksten
+
   const onSubmit = (data) => {
     // console.log("Indkommende data i onSubmit:", data);
     // if (!data.name || !data.email || !data.phonenumber) {
@@ -76,59 +82,52 @@ const PersonalInfoForm = ({ onNext, onBack, formData }) => {
     const ticketsWithIds = data.tickets.map((ticket) => ({
       ...ticket,
       id: ticket.id || crypto.randomUUID(),
-      price: ticket.price || 0,
+      // price: ticket.price || "0",
+      // name: ticket.name || "Default Name",
     }));
 
     console.log("Alle billetter efter mapping:", ticketsWithIds);
 
-    ticketsWithIds.forEach((ticket) => {
-      // Valider at ticket-data er korrekt
-      if (!ticket.name || typeof ticket.name !== "string") {
-        // console.error(
-        //   "Billet mangler et navn eller har en forkert datatype:",
-        //   ticket
-        // );
-        // return;
-      }
+    // Opdater konteksten med de mappede billetter
+    setPersonalInfo(ticketsWithIds);
 
-      //fortsætter kun hvis validereing går igennem
-      // burdte nok være tildstes så de førsk om op når man fuldførte resevatioen
-      fetch("https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc`,
-        },
-        body: JSON.stringify(ticket),
-      })
-        .then((response) => {
-          //her mangler vi at få det rigtige response, må laves om senere
-          // Debugging: Log hele response
-          console.log("Server response:", response);
+    // ticketsWithIds.forEach((ticket) => {
+    // Valider at ticket-data er korrekt
+    // if (!ticket.name || typeof ticket.name !== "string") {
+    //   // console.error(
+    //   //   "Billet mangler et navn eller har en forkert datatype:",
+    //   //   ticket
+    //   // );
+    //   // return;
+    //   console.log("ticket kommer ikke i gennem");
+    // }
 
-          // Check for status
-          // if (!response.ok) {
-          //   return response.json().then((error) => {
-          //     console.error("Fejl fra serveren:", error);
-          //     throw new Error("Serveren afviste forespørgslen.");
-          //   });
-          // }
-
-          // Hvis alt er OK, parse JSON
-          return response.json();
-        })
-        .then((result) => {
-          console.log("Billet gemt succesfuldt:", result);
-        });
-      // .catch((error) => {
-      //   console.error("Fetch-fejl:", error);
-      //   alert(
-      //     `Der opstod en fejl under indsendelsen af billet: ${ticket.name}`
-      //   );
-      // });
-    });
+    //fortsætter kun hvis validereing går igennem
+    // burdte nok være tildstes så de førsk om op når man fuldførte resevatioen
+    // console.log("tickets værdi", ticket);
+    // fetch("https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     apikey:
+    //       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
+    //     // Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc`,
+    //   },
+    //   body: JSON.stringify(ticket),
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     return () => console.log("data kommer vel?", data);
+    //   });
+    // .then((res) => {
+    //   //her mangler vi at få det rigtige response, må laves om senere
+    //   // console.log("Server response:", response);
+    //   // return response.json();
+    // })
+    //     .then((result) => {
+    //       console.log("Billet gemt succesfuldt:", result);
+    //     });
+    // });
 
     // console.log("Tickets med unikke ID'er:", ticketsWithIds);
 
@@ -137,6 +136,7 @@ const PersonalInfoForm = ({ onNext, onBack, formData }) => {
       ...data,
       tickets: ticketsWithIds,
     });
+    // });
   };
   return (
     <>

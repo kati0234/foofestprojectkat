@@ -5,7 +5,7 @@ import { KviteringContext } from "@/app/lib/KvitteringContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { validering } from "@/app/lib/validation";
 import { z } from "zod";
-
+import { useState, useEffect } from "react";
 // Preprocess og validering af kortnummer
 const cardNumberSchema = z
   .string()
@@ -16,8 +16,10 @@ const cardNumberSchema = z
   .max(19, "Kortnummeret må maks være 19 tegn, inklusive mellemrum");
 
 const PaymentStep = ({ onNext, onBack, formData }) => {
-  const { reservationId, timeRemaining } = useContext(KviteringContext);
+  const { personalInfo, reservationId, timeRemaining } =
+    useContext(KviteringContext);
 
+  const [paymentSuccessful, setPaymentSuccessful] = useState(false);
   const formular = z.object({
     cardNumber: z.preprocess(
       (value) => String(value).replace(/\s/g, ""), // Fjern mellemrum
@@ -30,7 +32,7 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
     //     /^(0[1-9]|1[0-2])\/([0-9]{2})$/,
     //     "Udløbsdato skal være i format MM/YY"
     //   ),
-    expireDate: z.string().min(1, "efternavn skal mindst være på 1 bogstav"),
+    // expireDate: z.string().min(1, "efternavn skal mindst være på 1 bogstav"),
     cvv: z.string().regex(/^\d{3}$/, "CVV skal være præcis 3 cifre"),
   });
 
@@ -64,7 +66,6 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
   const handleBlur = (fieldName) => {
     trigger(fieldName); // Udfør validering ved tab af fokus
   };
-
   const onSubmit = (data) => {
     if (!timeRemaining || timeRemaining <= 0) return false;
 
@@ -79,17 +80,83 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
       }),
     })
       .then((response) => response.json())
+      // .then((submitData) => {
+      //   console.log("her får vi data", submitData);
+      //   setPaymentSuccessful(true);
+      //   onNext({
+      //     ...data,
+      //   });
+      // })
+
       .then((submitData) => {
         console.log("her får vi data", submitData);
 
-        onNext({
-          ...data,
-        });
+        // Hvis status og besked er som forventet
+        if (submitData.message === "Reservation completed") {
+          setPaymentSuccessful(true); // Opdater paymentSuccessful til true
+          console.log("Betaling gennemført.");
+          console.log(paymentSuccessful);
+          // onNext({
+          //   ...data,
+          // });
+        } else {
+          setPaymentSuccessful(false); // Hvis ikke, så mislykkes betalingen
+          console.log("Betaling mislykkedes.");
+        }
       })
       .catch((err) => console.error("her kommer fejl ", err));
 
     console.log("Form submitted:", data);
   };
+  useEffect(() => {
+    console.log("Payment status updated to:", paymentSuccessful);
+  }, [paymentSuccessful]);
+
+  useEffect(() => {
+    if (paymentSuccessful && personalInfo.length > 0) {
+      console.log("useeff data", personalInfo);
+
+      personalInfo.forEach((ticket) => {
+        fetch("https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
+          },
+          body: JSON.stringify(ticket), // Sender hvert objekt individuelt
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Data for objekt sendt:", data);
+
+            // onNext({
+            //   ...data,
+            // });
+          });
+        // .catch((error) => {
+        //   console.error("Fejl ved at sende objekt:", error);
+        // });
+      });
+      console.log("Alle objekter er blevet sendt.");
+    }
+
+    //   fetch("https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       apikey:
+    //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
+    //     },
+    //     body: JSON.stringify(personalInfo),
+    //   })
+    //     .then((res) => res.json())
+    //     .then((data) => {
+    //       console.log("data kommer vel?", data);
+    //     })
+    //     .catch((err) => console.error("Fejl ved post til Supabase:", err));
+    // }
+  }, [paymentSuccessful, personalInfo]);
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -145,7 +212,7 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
           </label>
           <input
             type="text"
-            onChange={setValue("")}
+            // onChange={setValue("")}
             {...register("expireDate")}
             id="expireDate"
             max="5"
