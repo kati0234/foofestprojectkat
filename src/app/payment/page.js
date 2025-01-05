@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import TicketSelectionForm from "../components/tickets/TicketSelectionForm";
 import CampingOptionsForm from "../components/tickets/CampingOptionsForm";
@@ -16,6 +16,10 @@ import ReservationTimer from "../components/tickets/ReservationTimer";
 const Payment = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
+
+  useEffect(() => {
+    console.log("FormData efter opdatering:", formData);
+  }, [formData]); // Kun kald når formData ændres
 
   const nextStep = (data) => {
     setFormData((prev) => ({ ...prev, ...data }));
@@ -56,10 +60,12 @@ const Payment = () => {
                 </div>
               )}
               {step === 5 && (
-                <div>
-                  <h1 className="text-black text-2xl">
-                    tillykke!! du har fuldført din ordre
-                  </h1>
+                <div className="bg-orange-700">
+                  <div>
+                    <h1 className="text-black text-2xl">
+                      tillykke!! du har fuldført din ordre
+                    </h1>
+                  </div>
                 </div>
               )}
             </div>

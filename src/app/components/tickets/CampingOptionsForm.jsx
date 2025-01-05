@@ -29,35 +29,38 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
         .default(0),
       area: z.string().min(1, "Du skal vælge et campingområde"), // Campingområdet skal vælges
     })
+
     .refine(
       (data) => {
-        // Hvis addTentSetup er valgt, så skal telte vælges
-        if (data.addTentSetup && data.tent2p === 0 && data.tent3p === 0) {
-          return false; // Ugyldigt, hvis der ikke er valgt telte
+        // Hvis addTentSetup er valgt, skal billetterne matche teltepladserne
+        if (data.addTentSetup) {
+          // const totalTickets =
+          //   (data.vipCount || formData.vipCount) +
+          //   (data.regularCount || formData.regularCount);
+          const totalTickets = formData.totalTickets;
+          const totalTents = data.tent2p * 2 + data.tent3p * 3; // Antallet af pladser i teltene
+
+          // Hvis der kun er én billet, skal der kun vælges ét telt
+          if (totalTickets === 1) {
+            // Brugeren skal vælge et telt, men kun ét telt må vælges
+            if (data.tent2p + data.tent3p !== 1) {
+              return false; // Ugyldigt, hvis der ikke vælges præcist ét telt (enten tent2p eller tent3p)
+            }
+          } else {
+            // Hvis der er flere billetter, skal telte og billetter matche
+            if (totalTickets !== totalTents) {
+              return false; // Ugyldigt, hvis telte og billetter ikke stemmer overens
+            }
+          }
         }
         return true;
       },
       {
-        message: "Du skal vælge telte, når du tilvælger teltopsætning",
-        path: ["addTentSetup"], // Denne fejl viser sig på addTentSetup
-      }
-    )
-    .refine(
-      (data) => {
-        // Sørg for at antallet af telte matcher antallet af billetter
-        const totalTickets = (data.vipCount || 0) + (data.regularCount || 0);
-        const totalTents = data.tent2p + data.tent3p; // Samme antal telte, uden at tage højde for pladser i teltene
-        if (totalTickets !== totalTents) {
-          return false; // Ugyldigt, hvis telte og billetter ikke stemmer overens
-        }
-        return true;
-      },
-      {
-        message: "Antallet af telte skal matche antallet af billetter",
+        message:
+          "Antallet af telte skal matche antallet af billetter, eller du skal vælge et telt, hvis du har én billet",
         path: ["tent3p"], // Fejlbesked relateret til 3-personers telte
       }
     );
-
   const {
     register,
     handleSubmit,
@@ -69,27 +72,22 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
   } = useForm({
     resolver: zodResolver(validering),
     defaultValues: {
-      campingSelected: formData.campingSelected || false, //bruges ik
+      // campingSelected: formData.campingSelected || false, //bruges ik
       addTentSetup: formData.addTentSetup || false, // Tilføj standardværdi for addTentSetup
       vipCount: formData.vipCount || 0,
       regularCount: formData.regularCount || 0,
+
       area: formData.area || "",
       tent2p: 0,
       tent3p: 0,
-      // area: "",
-
       greenCamping: false,
     },
   });
 
   const [availableSpots, setAvailableSpots] = useState([]); // Tilgængelige områder
   const [selectedArea, setSelectedArea] = useState(null);
-  // man kan komme vider uden at have valgt et spot
-  // fore
-  // const [formError, setFormError] = useState("");
 
   const { updateCartData } = useContext(KviteringContext); // Få adgang til updateCartData
-
   const { startReservation } = useContext(KviteringContext);
 
   useEffect(() => {
@@ -97,7 +95,6 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
       const { area, greenCamping, addTentSetup } = data;
       updateCartData({
         area,
-
         greenCamping,
         addTentSetup,
       });
@@ -111,7 +108,6 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
   useEffect(() => {
     fetch("https://cerulean-abrupt-sunshine.glitch.me/available-spots", {
       method: "GET",
-
       headers: {
         "Content-Type": "application/json",
       },
@@ -125,12 +121,13 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
   }, []);
 
   // Håndterer valget af et campingområde
-
+  // const tik = formData.totalTickets;
+  // console.log("tik", tik);
   const handleAreaSelection = (area) => {
     const selectedSpot = availableSpots.find((spot) => spot.area === area); // Finder det valgte område
-
-    const totalTickets = // Beregn total billetter (VIP + Regular)
-      (formData.vipCount || 0) + (formData.regularCount || 0);
+    const totalTickets = formData.totalTickets;
+    // const totalTickets = // Beregn total billetter (VIP + Regular)
+    //   (formData.vipCount || 0) + (formData.regularCount || 0);
 
     if (!selectedSpot || totalTickets > selectedSpot.available) {
       // setFormError(
@@ -166,7 +163,7 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
 
     updateCartData({ [type]: newValue });
   };
-
+  console.log("fomdat camping", formData);
   const onSubmit = (data) => {
     if (!data.area) {
       setFormError("Du skal vælge et campingområde, før du kan fortsætte.");
