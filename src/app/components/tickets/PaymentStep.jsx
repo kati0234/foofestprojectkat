@@ -108,9 +108,9 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
 
     console.log("Form submitted:", data);
   };
-  useEffect(() => {
-    console.log("Payment status updated to:", paymentSuccessful);
-  }, [paymentSuccessful]);
+  // useEffect(() => {
+  //   console.log("Payment status updated to:", paymentSuccessful);
+  // }, [paymentSuccessful]);
 
   useEffect(() => {
     if (paymentSuccessful && personalInfo.length > 0) {
@@ -126,17 +126,23 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
           },
           body: JSON.stringify(ticket), // Sender hvert objekt individuelt
         })
-          .then((res) => res.json())
+          // .then((res) => res.json())
+          .then((res) => {
+            console.log("Statuskode:", res.status); // Logger HTTP-statuskoden
+            console.log("Headers:", res.headers); // Logger alle headers
+            console.log("Content-Type:", res.headers.get("Content-Type")); // Logger Content-Type
+
+            return res.text(); // Brug .text() i stedet for .json() for at se rå data
+          })
           .then((data) => {
             console.log("Data for objekt sendt:", data);
-
-            // onNext({
-            //   ...data,
-            // });
           });
         // .catch((error) => {
         //   console.error("Fejl ved at sende objekt:", error);
         // });
+        onNext({
+          ...formData,
+        });
       });
       console.log("Alle objekter er blevet sendt.");
     }

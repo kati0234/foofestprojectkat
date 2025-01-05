@@ -7,12 +7,13 @@ export const KviteringContext = createContext();
 // Opret provider til at indpakke komponenter og give adgang til context
 export const KviteringProvider = ({ children }) => {
   const [cartData, setCartData] = useState({});
-  const [personalInfo, setPersonalInfo] = useState({});
+  const [personalInfo, setPersonalInfo] = useState([]);
   // firkat er arry...
 
   const [reservationId, setReservationId] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timeoutMessage, setTimeoutMessage] = useState("");
+  const [paymentSuccessfulContex, setPaymentSuccessfulContex] = useState(false);
   const startReservation = (id, timeout) => {
     setReservationId(id);
     setTimeRemaining(timeout);
@@ -81,6 +82,8 @@ export const KviteringProvider = ({ children }) => {
         timeoutMessage,
         personalInfo,
         setPersonalInfo,
+        setPaymentSuccessfulContex,
+        paymentSuccessfulContex,
       }}
     >
       {children}
