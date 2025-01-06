@@ -28,11 +28,11 @@ const Payment = () => {
 
   const prevStep = () => setStep((prev) => prev - 1);
   return (
-    <div className="grid grid-cols-[1fr]  justify-between py-20 lg:px-20 sm:px:10 bg-white">
-      <div className=" bg-white ">
+    <div className="grid grid-cols-[1fr]  justify-between py-20 lg:px-20 md:px-20 sm:px:10 bg-neutral-50">
+      <div className="bg-neutral-50 ">
         <KviteringProvider>
           <StepBar step={step} />
-          <div className=" grid md:grid-cols-[1fr_0.4fr] sm:grid-cols-1 sm:justify-center py-16 col-span-full gap-4 max-sm:justify-items-center">
+          <div className=" grid  md:grid-cols-[1fr_0.4fr] sm:grid-cols-1 sm:justify-center py-16 col-span-full gap-4 max-sm:justify-items-center">
             <div className="">
               {step === 1 && <TicketSelectionForm onNext={nextStep} />}
               {step === 2 && (

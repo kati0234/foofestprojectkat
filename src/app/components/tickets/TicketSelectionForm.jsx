@@ -79,23 +79,27 @@ const TicketSelectionForm = ({ onNext }) => {
   };
 
   return (
-    <div className=" grid md:grid-cols-1 bg-white sm:px-10 m-4 lg:px-20 py-10 w-fit sm:place-self-center border-black border-2">
-      <form onSubmit={handleSubmit(onSubmit)} className="">
-        <div className=" w-fit  ">
-          <h1 className="text-stor font-medium">Billetter</h1>
+    <div className=" grid grid-cols-1 lg:px-40 md:px-20 sm:px-10 ">
+      <h1 className="text-stor font-medium">Billetter</h1>
+      <p>vælg biletter</p>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 mt-4 "
+      >
+        <div className="  bg-white   py-10  border-gray-400 rounded-lg border-1  shadow-md shadow-gray-400 px-10 ">
           <div className="flex justify-between">
             <h2>Vælg antal billetter </h2>
             <p className="font-medium italic"> ticket ({totalTickets})</p>
           </div>
-
-          <div className="flex justify-between py-2  ">
+          <div className="flex justify-between py-2   ">
             <label htmlFor="vip">Antal VIP 1299,-</label>
-            <div className="grid grid-cols-3 gap-3 justify-center place-items-center">
+            <div className="grid grid-cols-3 gap-3 justify-center place-items-center border-[1px] border-gray-400 ">
               <button
                 type="button"
+                className="bg-gray-300 p-2"
                 onClick={() => handleTentChange("vipCount", "decrement")}
               >
-                <HiOutlineMinus className="w-6 h-6 " />
+                <HiOutlineMinus className="w-6 h-6 text-center " />
               </button>
 
               <input
@@ -105,11 +109,12 @@ const TicketSelectionForm = ({ onNext }) => {
                 placeholder="0"
                 min="0"
                 max="8"
-                className=" w-10 text-center  text-lg"
+                className=" text-center  text-lg"
                 readOnly
               />
               <button
                 type="button"
+                className="bg-gray-300 p-2 active:bg-gray-400"
                 onClick={() => handleTentChange("vipCount", "increment")}
               >
                 <HiOutlinePlus className="w-6 h-6 " />
@@ -151,7 +156,7 @@ const TicketSelectionForm = ({ onNext }) => {
         </div>
         <button
           type="submit"
-          className="bg-green py-1 px-3 self-end place-self-end  border-black border-2 mt-4"
+          className="bg-black py-2 px-3 self-end place-self-end text-white text-lg  border-black border-2 mt-4"
         >
           Gå videre
         </button>
