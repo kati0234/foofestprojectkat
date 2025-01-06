@@ -76,7 +76,6 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
       addTentSetup: formData.addTentSetup || false, // Tilføj standardværdi for addTentSetup
       vipCount: formData.vipCount || 0,
       regularCount: formData.regularCount || 0,
-
       area: formData.area || "",
       tent2p: 0,
       tent3p: 0,
@@ -152,6 +151,14 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
       setAvailableSpots(updatedSpots); // Opdaterer tilstanden med de nye tilgængelige pladser
     }
   };
+  // fjerner erros når valid
+  const handleBlur = (fieldName) => {
+    const isValid = trigger(fieldName); // Trigger validering
+
+    if (isValid) {
+      clearErrors(fieldName); // Fjern fejlmeddelelsen, hvis validering er korrekt
+    }
+  };
 
   // Håndterer plus og minus for telte
   const handleTentChange = (type, operation) => {
@@ -163,10 +170,12 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
 
     updateCartData({ [type]: newValue });
   };
+
   console.log("fomdat camping", formData);
   const onSubmit = (data) => {
     if (!data.area) {
-      setFormError("Du skal vælge et campingområde, før du kan fortsætte.");
+      // valider kun på en måde
+      // setFormError("Du skal vælge et campingområde, før du kan fortsætte.");
       return;
     }
     const totalTickets = // Beregn total billetter (VIP + Regular)
@@ -223,6 +232,9 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                     value={spot.area}
                     {...register("area")} // Binding til formular
                     onChange={() => handleAreaSelection(spot.area)} // Validering
+                    // skal slette fjelmedelse efter
+                    onFocus={() => clearErrors}
+                    onBlur={() => handleBlur(area)}
                     disabled={isDisabled} // Deaktiver området hvis der er for mange billetter
                   />
                   <label
