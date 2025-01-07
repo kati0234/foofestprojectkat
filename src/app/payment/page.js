@@ -32,7 +32,7 @@ const Payment = () => {
       <div className="bg-neutral-50 ">
         <KviteringProvider>
           <StepBar step={step} />
-          <div className=" grid  md:grid-cols-[1fr_0.4fr] sm:grid-cols-1 sm:justify-center py-16 col-span-full gap-4 max-sm:justify-items-center">
+          <div className=" grid  md:grid-cols-[1fr_0.4fr] sm:grid-cols-1 sm:justify-center py-16 col-span-full gap-10 max-sm:justify-items-center">
             <div className="">
               {step === 1 && <TicketSelectionForm onNext={nextStep} />}
               {step === 2 && (

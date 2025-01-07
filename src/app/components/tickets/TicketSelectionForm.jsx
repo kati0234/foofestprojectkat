@@ -79,7 +79,7 @@ const TicketSelectionForm = ({ onNext }) => {
   };
 
   return (
-    <div className=" grid grid-cols-1 lg:px-40 md:px-20 sm:px-10 ">
+    <div className=" grid grid-cols-1 lg:pr-28 md:px-20 sm:px-10 ">
       <h1 className="text-stor font-medium">Billetter</h1>
       <p>vælg biletter</p>
       <form
@@ -158,7 +158,7 @@ const TicketSelectionForm = ({ onNext }) => {
           type="submit"
           className="bg-black py-2 px-3 self-end place-self-end text-white text-lg  border-black border-2 mt-4"
         >
-          Gå videre
+          Fortsæt
         </button>
       </form>
     </div>
