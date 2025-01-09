@@ -16,21 +16,21 @@ const StepBar = ({ step }) => {
       {/* Progress Bar */}
       <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200 "></div>
       <motion.div
-        className="absolute bottom-0 left-0 h-1 bg-customPink"
+        className="absolute bottom-0 left-0 h-1  bg-[#2463EB]"
         initial={{ width: "0%" }}
         animate={{ width: calculateWidth() }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       ></motion.div>
 
       {/* Steps */}
-      <div className="flex md:pt-4 flex-wrap md:justify-center">
+      <div className="flex md:pt-4 lg:justify-center lg:col-start-1 lg:col-span-1  md:justify-center sm:justify-center">
         {steps.map(({ id, label }) => (
           <div key={id} className="flex items-center px-8 py-4">
             {/* Circle Indicator */}
             <div
               className={`flex items-center justify-center sm:flex-col ${
                 step >= id
-                  ? " text-customPink text-lg border-b-pink"
+                  ? " text-[#2463EB] text-lg border-b-pink"
                   : "border-gray-300"
               }`}
             >
@@ -40,7 +40,7 @@ const StepBar = ({ step }) => {
               <p
                 className={` md:text-lg lg:text-lg sm:text-xs ${
                   step === id
-                    ? "text-customPink font-bold"
+                    ? "text-[#2463EB] font-bold"
                     : step > id
                     ? "text-gray-500"
                     : "text-gray-400"

@@ -29,27 +29,8 @@ export const KviteringProvider = ({ children }) => {
     console.log("Reservation timeout udløbet.");
   };
 
-  // useEffect(() => {
-  //   console.log("useeff data", data);
-
-  //   fetch("https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       apikey:
-  //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
-  //       // Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc`,
-  //     },
-  //     body: JSON.stringify(ticket),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       return () => console.log("data kommer vel?", data);
-  //     });
-  // }, [data]);
-
   useEffect(() => {
-    if (timeRemaining > 0) {
+    if (timeRemaining > 0 && !paymentSuccessfulContex) {
       const timer = setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
@@ -62,7 +43,7 @@ export const KviteringProvider = ({ children }) => {
 
       return () => clearInterval(timer);
     }
-  }, [timeRemaining]);
+  }, [timeRemaining, paymentSuccessfulContex]); // Tilføj paymentSuccessfulContex som en afhængighed kunne optmrrs med den anden payment sucesfukd
 
   const updateCartData = (newData) => {
     setCartData((prevData) => ({
@@ -88,10 +69,14 @@ export const KviteringProvider = ({ children }) => {
     >
       {children}
       {timeoutMessage && (
-        <div>
-          {timeoutMessage}
-          <Link href="/" className="border-black border-2 font-medium p-2">
-            <p>naviger til forsiden</p>
+        <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white pt-10 pb-10 px-20 text-center shadow-lg">
+          {/* {timeoutMessage} */}
+          <p className="font-bold text-2xl">Tiden er udløbet</p>
+          <p className="pb-2">din betaling er udløbet naviger til forsiden </p>
+          <Link href="/" className="font-medium  ">
+            <div className="border-2 border-payCol p-4">
+              <p className="text-payCol text-xl ">naviger til forsiden</p>
+            </div>
           </Link>
         </div>
       )}

@@ -79,84 +79,108 @@ const TicketSelectionForm = ({ onNext }) => {
   };
 
   return (
-    <div className=" grid grid-cols-1 lg:pr-28 md:px-20 sm:px-10 ">
-      <h1 className="text-stor font-medium">Billetter</h1>
-      <p>vælg biletter</p>
+    <div>
+      <div className=" ">
+        <h1 className="text-stor font-medium text-payCol">Billetter</h1>
+        {/* <p>tilføj billeter (max 8)</p> */}
+        {/* <p>vælg biletter</p> */}
+      </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 mt-4 "
       >
-        <div className="  bg-white   py-10  border-gray-400 rounded-lg border-1  shadow-md shadow-gray-400 px-10 ">
-          <div className="flex justify-between">
-            <h2>Vælg antal billetter </h2>
-            <p className="font-medium italic"> ticket ({totalTickets})</p>
-          </div>
-          <div className="flex justify-between py-2   ">
-            <label htmlFor="vip">Antal VIP 1299,-</label>
-            <div className="grid grid-cols-3 gap-3 justify-center place-items-center border-[1px] border-gray-400 ">
-              <button
-                type="button"
-                className="bg-gray-300 p-2"
-                onClick={() => handleTentChange("vipCount", "decrement")}
-              >
-                <HiOutlineMinus className="w-6 h-6 text-center " />
-              </button>
+        {/* <div className=" bg-white p-10 "> */}
+        <div className="bg-white border-[1px] p-10">
+          {/* <div className="pb-2  ">
+            <h2 className="text-xl font-medium">Vælg bilet type </h2>
+            <p>max antal billetter 8</p>
+          </div> */}
+          <h2 className="text-xl font-medium  ">Vælg bilet type </h2>
+          <p className=" italic text-neutral-600 text-sm pb-2">
+            max antal billeter 8{" "}
+          </p>
+          <div className=" place-self-center w-full  ">
+            <div className="flex justify-between items-center p-4 gap-10  mb-4  bg-white border-[1px]  ">
+              <label htmlFor="vip" className="text-lg">
+                VIP <strong> 1299,- </strong>
+              </label>
 
-              <input
-                {...register("vipCount", { valueAsNumber: true })}
-                type="number"
-                id="vip"
-                placeholder="0"
-                min="0"
-                max="8"
-                className=" text-center  text-lg"
-                readOnly
-              />
-              <button
-                type="button"
-                className="bg-gray-300 p-2 active:bg-gray-400"
-                onClick={() => handleTentChange("vipCount", "increment")}
-              >
-                <HiOutlinePlus className="w-6 h-6 " />
-              </button>
-            </div>
-          </div>
+              <div className="grid grid-cols-3 gap-3 pl-10 justify-center place-items-center  border-gray-400 ">
+                <button
+                  type="button"
+                  // className="bg-gray-300 p-1 rounded-lg active:bg-gray-400"
+                  className="p-1   active:bg-gray-800 bg-payCol"
+                  onClick={() => handleTentChange("vipCount", "decrement")}
+                >
+                  <HiOutlineMinus className="w-5 h-5 text-center text-white " />
+                </button>
 
-          <div className="flex justify-between py-2 gap-7 ">
-            <label htmlFor="regular">Antal normal 799,-</label>
-            <div className="grid grid-cols-3 gap-3 justify-center place-items-center">
-              <button
-                type="button"
-                onClick={() => handleTentChange("regularCount", "decrement")}
-              >
-                <HiOutlineMinus className="w-6 h-6 " />
-              </button>
-              <input
-                {...register("regularCount", { valueAsNumber: true })}
-                type="number"
-                placeholder="0"
-                min="0"
-                max="8"
-                id="regular"
-                readOnly
-                className=" w-10 text-center text-lg"
-                // value={regularCount} // Bruger den værdi, der er gemt i state
-              />
-              <button
-                type="button"
-                onClick={() => handleTentChange("regularCount", "increment")}
-              >
-                <HiOutlinePlus className="w-6 h-6 " />
-              </button>
+                <input
+                  {...register("vipCount", { valueAsNumber: true })}
+                  type="text"
+                  id="vip"
+                  placeholder="0"
+                  min="0"
+                  max="8"
+                  // className=" placeholder:text-center w-10 text-center p-1 text-lg"
+                  className=" w-10 border-[1px] border-gray-400 text-center  text-lg"
+                  readOnly
+                />
+                <button
+                  type="button"
+                  // className="bg-gray-300 p-1 rounded-lg active:bg-gray-400"
+                  className="p-1   active:bg-gray-800 bg-payCol"
+                  onClick={() => handleTentChange("vipCount", "increment")}
+                >
+                  <HiOutlinePlus className="w-5 h-5 text-white " />
+                </button>
+              </div>
             </div>
+            {/* //bg-[#f4f4f4] */}
+            <div className="flex justify-between items-center p-4   mb-4  bg-white border-[1px]    ">
+              <label htmlFor="regular" className="text-lg">
+                Standart <strong> 799,-</strong>
+              </label>
+              <div className="grid grid-cols-3 gap-3 justify-center place-items-center">
+                <button
+                  type="button"
+                  onClick={() => handleTentChange("regularCount", "decrement")}
+                  // className="p-1 border-[1px] border-black active:bg-gray-200 "
+                  className="p-1   active:bg-gray-800 bg-payCol"
+                >
+                  <HiOutlineMinus className="w-5 h-5 text-white" />
+                </button>
+                <input
+                  {...register("regularCount", { valueAsNumber: true })}
+                  type="text"
+                  placeholder="0"
+                  min="0"
+                  max="8"
+                  id="regular"
+                  readOnly
+                  className=" w-10 border-[1px] border-gray-400 text-center  text-lg"
+                  // value={regularCount} // Bruger den værdi, der er gemt i state
+                />
+                <button
+                  type="button"
+                  onClick={() => handleTentChange("regularCount", "increment")}
+                  className="p-1   active:bg-gray-800 bg-payCol"
+                >
+                  <HiOutlinePlus className="w-5 h-5 text-white" />
+                </button>
+              </div>
+            </div>
+            {errors.vipCount && (
+              <span className="text-red-500">{errors.vipCount.message}</span>
+            )}
           </div>
-          {errors.vipCount && (
-            <span className="text-red-500">{errors.vipCount.message}</span>
-          )}
+          <p className="font-medium italic place-self-end">
+            Billetter valgt i alt ({totalTickets})
+          </p>
         </div>
         <button
           type="submit"
-          className="bg-black py-2 px-3 self-end place-self-end text-white text-lg  border-black border-2 mt-4"
+          className="bg-[#2463EB] py-2 px-3 self-end place-self-end text-white text-lg mt-4"
         >
           Fortsæt
         </button>

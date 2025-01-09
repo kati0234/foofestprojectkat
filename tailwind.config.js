@@ -36,6 +36,7 @@ module.exports = {
         pink: "#F20FCC",
         peach: "#F25E86",
         green: "#00FF1A",
+        payCol: "#2463EB",
         customPink: {
           DEFAULT: "oklch(67% 0.2901 354.71)", // OKLCH-farven
           600: "oklch(70% 0.2901 354.71)",
@@ -66,6 +67,7 @@ module.exports = {
         mid: "1.25rem", //20px
         stor: "1.875rem",
         heroText: "12.5rem",
+        test: "14px",
         // "2xl": "1.563rem",
         // "3xl": "1.953rem",
         // "4xl": "2.441rem",

@@ -2,7 +2,8 @@
 import { useContext, useEffect, useState } from "react";
 import { KviteringContext } from "@/app/lib/KvitteringContext";
 const ReservationTimer = ({}) => {
-  const { reservationId, timeRemaining } = useContext(KviteringContext);
+  const { reservationId, timeRemaining, paymentSuccessfulContex } =
+    useContext(KviteringContext);
 
   // console.log("reservationId:", reservationId);
 
@@ -14,10 +15,11 @@ const ReservationTimer = ({}) => {
   };
 
   // Skjul komponenten, hvis der ikke er en aktiv reservation
-  if (!reservationId) return null;
+  // if (!reservationId) return null;
+  if (!reservationId || paymentSuccessfulContex) return null;
 
   return (
-    <div className="bg-customPink z-30 col-span-full justify-center items-center  gap-6 flex">
+    <div className="bg-payCol z-30  justify-center items-center   gap-6 flex">
       <h3 className="text-center p-2">
         Din reservation udløber om: {formatTime(timeRemaining)}
       </h3>
