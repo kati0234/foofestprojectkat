@@ -7,13 +7,6 @@ import { validering } from "@/app/lib/validation";
 import { z } from "zod";
 import { useState, useEffect } from "react";
 // Preprocess og validering af kortnummer
-const cardNumberSchema = z
-  .string()
-  .regex(
-    /^\d{4} \d{4} \d{4} \d{4}$/,
-    "Kortnummeret skal have formatet XXXX XXXX XXXX XXXX"
-  )
-  .max(19, "Kortnummeret må maks være 19 tegn, inklusive mellemrum");
 
 const PaymentStep = ({ onNext, onBack, formData }) => {
   const {
@@ -44,8 +37,7 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
     register,
     handleSubmit,
     formState: { errors },
-    trigger,
-    // clearErrors,
+    clearErrors,
     setValue, // bruges til at sætte værdier dynamisk, f.eks. når vi ændrer område på vores knapper
     watch,
   } = useForm({
@@ -63,6 +55,10 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
   const cardInfo = watch("cardNumber");
   const expireDateInfo = watch("expireDate");
 
+  // useEffect(() => {
+  //   console.log("FormData PAYMENT", formData);
+  // }, [formData]); // Kun kald når formData ændres
+
   const formatExpireDate = (value) => {
     const cleanedValue = value.replace(/\D/g, ""); // Fjern ikke-cifre
     if (cleanedValue.length <= 2) return cleanedValue; // Returnér som det er, hvis der er to eller færre cifre
@@ -75,9 +71,6 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
     return formatted;
   };
 
-  // const handleBlur = (fieldName) => {
-  //   trigger(fieldName); // Udfør validering ved tab af fokus
-  // };
   const onSubmit = (data) => {
     if (!timeRemaining || timeRemaining <= 0) return false;
 
@@ -112,39 +105,83 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
     console.log("Form submitted:", data);
   };
 
+  // useEffect(() => {
+  //   if (paymentSuccessful && personalInfo.length > 0) {
+  //     console.log("useeff data", personalInfo);
+
+  //     personalInfo.forEach((ticket) => {
+  //       fetch("https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           apikey:
+  //             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
+  //         },
+  //         body: JSON.stringify(ticket), // Sender hvert objekt individuelt
+  //       })
+  //         // .then((res) => res.json())
+  //         .then((res) => {
+  //           console.log("Statuskode:", res.status); // Logger HTTP-statuskoden
+  //           console.log("Headers:", res.headers); // Logger alle headers
+  //           console.log("Content-Type:", res.headers.get("Content-Type")); // Logger Content-Type
+  //           // det er det her det fiksede for der er noget med jison som bliver retuner som text
+  //           return res.text(); // Brug .text() i stedet for .json() for at se rå data
+  //         })
+  //         .then((data) => {
+  //           console.log("Data for objekt sendt:", data);
+  //         });
+
+  //       onNext({
+  //         ...formData,
+  //       });
+  //     });
+  //     console.log("Alle objekter er blevet sendt.");
+  //   }
+  // }, [paymentSuccessful, personalInfo]);
+
   useEffect(() => {
     if (paymentSuccessful && personalInfo.length > 0) {
-      console.log("useeff data", personalInfo);
+      console.log("personalInfo data", personalInfo);
 
-      personalInfo.forEach((ticket) => {
-        fetch("https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
-          },
-          body: JSON.stringify(ticket), // Sender hvert objekt individuelt
-        })
-          // .then((res) => res.json())
-          .then((res) => {
-            console.log("Statuskode:", res.status); // Logger HTTP-statuskoden
-            console.log("Headers:", res.headers); // Logger alle headers
-            console.log("Content-Type:", res.headers.get("Content-Type")); // Logger Content-Type
-            // det er det her det fiksede for der er noget med jison som bliver retuner som text
-            return res.text(); // Brug .text() i stedet for .json() for at se rå data
-          })
-          .then((data) => {
-            console.log("Data for objekt sendt:", data);
-          });
-
-        onNext({
-          ...formData,
+      const requests = personalInfo.map((ticket) => {
+        return fetch(
+          "https://klttbkdhdxrsuyjkwkuj.supabase.co/rest/v1/foofest",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey:
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsdHRia2RoZHhyc3V5amt3a3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwODI4NDgsImV4cCI6MjA0OTY1ODg0OH0.e3FebWALlTqZTxB2vSWb0_xqWf-MxdZrVpKhTM-_dnc",
+            },
+            body: JSON.stringify(ticket),
+          }
+        ).then((res) => {
+          console.log("Statuskode:", res.status); // Logger HTTP-statuskoden
+          console.log("Headers:", res.headers); // Logger alle headers
+          console.log("Content-Type:", res.headers.get("Content-Type")); // Logger Content-Type
+          // if (!res.ok) {
+          //   throw new Error(`HTTP error! status: ${res.status}`);
+          // }
+          return res.text();
+          // return res.json(); // virker ik
         });
       });
-      console.log("Alle objekter er blevet sendt.");
+
+      Promise.all(requests)
+        .then((responses) => {
+          console.log("alt data sent syksefuld", responses);
+          onNext({
+            ...formData,
+          });
+        })
+        .catch((error) => {
+          console.error("Fetch error:", error);
+        });
+
+      // console.log("alle objects er send.");
     }
   }, [paymentSuccessful, personalInfo]);
+
   return (
     // className="grid grid-cols-1 lg:px-20 md:px-16 sm:px-10"
     <div>
@@ -174,7 +211,7 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
               />
 
               {errors.cardHolder && (
-                <span className="text-red-500 text-xs">
+                <span className="text-red-500 text-sm">
                   {errors.cardHolder.message}
                 </span>
               )}
@@ -190,18 +227,18 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
                 {...register("cardNumber")}
                 value={formatCardNumber(cardInfo || "")} // This dynamically updates the value
                 onChange={(e) => setValue("cardNumber", e.target.value)}
-                // onBlur={() => handleBlur("cardNumber")}
-                // className="border-2 border-black p-2 text-base w-[300px] focus:outline-none focus:ring-2 focus:ring-customPink"
                 className="border-[1px] border-neutral-400 p-2 bg-gray-100 text-base focus:outline-none focus:ring-2 focus:ring-customPink"
                 id="cardnumber"
                 type="text"
-                max="16"
                 name="cardnumber"
+                maxLength="19"
                 placeholder="1234 5678 9012 3456"
               />
             </div>
             {errors.cardNumber && (
-              <span className="text-red-500">{errors.cardNumber.message}</span>
+              <span className="text-red-500 text-sm">
+                {errors.cardNumber.message}
+              </span>
             )}
             <div className="flex gap-3">
               <div className="flex flex-col">
@@ -213,21 +250,17 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
                 </label>
                 <input
                   type="text"
-                  // onChange={setValue("")}
-
                   {...register("expireDate")}
                   value={formatExpireDate(expireDateInfo || "")}
                   onChange={(e) => setValue("expireDate", e.target.value)}
                   placeholder="MM/YY"
                   id="expireDate"
-                  max="5"
-                  className=" p-2 text-base bg-gray-100 focus:outline-none w-full focus:ring-2 focus:ring-customPink"
-                  // className="border-2 border-black p-2 text-base  focus:outline-none focus:ring-2 focus:ring-customPink w-20"
+                  maxLength="5"
+                  className=" p-2 text-base bg-gray-100 focus:outline-none w-full focus:ring-2 focus:ring-payCol"
                   name="expireDate"
-                  required
                 />
                 {errors.expireDate && (
-                  <span className="text-red-500 text-xs pt-1">
+                  <span className="text-red-500 text-sm pt-1">
                     {errors.expireDate.message}
                   </span>
                 )}
@@ -241,18 +274,15 @@ const PaymentStep = ({ onNext, onBack, formData }) => {
                   CVV *
                 </label>
                 <input
-                  // className="border-2 border-black p-2 text-base focus:outline-none focus:ring-2 focus:ring-customPink w-20"
                   className="border-[1px] border-neutral-400 p-2 bg-gray-100 text-base focus:outline-none focus:ring-2 focus:ring-customPink"
                   {...register("cvv")}
                   id="cvv"
                   name="cvv"
-                  placeholder="123"
-                  required
-                  pattern="\d{3}"
-                  max={3}
+                  placeholder="420"
+                  maxLength="3"
                 />
                 {errors.cvv && (
-                  <span className="text-red-500 text-xs pt-1">
+                  <span className="text-red-500 text-sm pt-1">
                     {errors.cvv.message}
                   </span>
                 )}

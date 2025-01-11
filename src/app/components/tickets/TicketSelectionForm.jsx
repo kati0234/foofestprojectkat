@@ -21,20 +21,23 @@ const TicketSelectionForm = ({ onNext }) => {
         .min(0, "Antal Regular billetter skal være et positivt tal"),
     })
 
-    // Tjekker om enten vip eller regular billetter er valgt
     .refine((data) => data.vipCount > 0 || data.regularCount > 0, {
       message: "Du skal vælge mindst én billet",
       path: ["vipCount"], // Eller "regularCount" hvis du vil vise fejlen på det ene felt
     });
-  // her for ..data vip og regular count
+
   const {
     register,
     handleSubmit,
     setValue, // bruges til knapper
     formState: { errors },
+    clearErrors,
     watch, // Brug watch til at få værdierne af formularfelterne
   } = useForm({
     resolver: zodResolver(validering), // Brug Zod-validering
+    mode: "onchange",
+    reValidateMode: "onSubmit",
+
     defaultValues: {
       vipCount: 0, // Standardværdi for vipCount
       regularCount: 0, // Standardværdi for regularCount
@@ -49,24 +52,17 @@ const TicketSelectionForm = ({ onNext }) => {
 
   // const totalTick = vipCount + regularCount;
   const totalTickets = vipCount + regularCount;
-  const handleTentChange = (type, operation) => {
+  const handleChange = (type, operation) => {
     const currentValue = watch(type);
     let newValue =
       operation === "increment" ? currentValue + 1 : currentValue - 1;
     if (newValue < 0) newValue = 0; // Undgå negative værdier
-
-    // Beregn den samlede mængde billetter (VIP + Regular)
 
     // Kun tillad ændringen, hvis den samlede mængde ikke overstiger 8
     if (totalTickets < 8 || (operation === "decrement" && newValue >= 0)) {
       setValue(type, newValue);
       updateCartData({ [type]: newValue });
     }
-  };
-
-  const handleNext = (data) => {
-    console.log("Går videre med data:", data);
-    // Naviger til næste trin eller opdater applikationens tilstand
   };
 
   const onSubmit = (data) => {
@@ -82,21 +78,14 @@ const TicketSelectionForm = ({ onNext }) => {
     <div>
       <div className=" ">
         <h1 className="text-stor font-medium text-payCol">Billetter</h1>
-        {/* <p>tilføj billeter (max 8)</p> */}
-        {/* <p>vælg biletter</p> */}
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 mt-4 "
       >
-        {/* <div className=" bg-white p-10 "> */}
         <div className="bg-white border-[1px] p-10">
-          {/* <div className="pb-2  ">
-            <h2 className="text-xl font-medium">Vælg bilet type </h2>
-            <p>max antal billetter 8</p>
-          </div> */}
           <h2 className="text-xl font-medium  ">Vælg bilet type </h2>
-          <p className=" italic text-neutral-600 text-sm pb-2">
+          <p className=" italic text-payCol text-sm pb-2">
             max antal billeter 8{" "}
           </p>
           <div className=" place-self-center w-full  ">
@@ -108,9 +97,12 @@ const TicketSelectionForm = ({ onNext }) => {
               <div className="grid grid-cols-3 gap-3 pl-10 justify-center place-items-center  border-gray-400 ">
                 <button
                   type="button"
-                  // className="bg-gray-300 p-1 rounded-lg active:bg-gray-400"
+                  aria-label="minus vip"
                   className="p-1   active:bg-gray-800 bg-payCol"
-                  onClick={() => handleTentChange("vipCount", "decrement")}
+                  onClick={() => {
+                    handleChange("vipCount", "decrement");
+                    clearErrors(["vipCount"]);
+                  }}
                 >
                   <HiOutlineMinus className="w-5 h-5 text-center text-white " />
                 </button>
@@ -122,15 +114,17 @@ const TicketSelectionForm = ({ onNext }) => {
                   placeholder="0"
                   min="0"
                   max="8"
-                  // className=" placeholder:text-center w-10 text-center p-1 text-lg"
                   className=" w-10 border-[1px] border-gray-400 text-center  text-lg"
                   readOnly
                 />
                 <button
+                  aria-label="plus vip"
                   type="button"
-                  // className="bg-gray-300 p-1 rounded-lg active:bg-gray-400"
                   className="p-1   active:bg-gray-800 bg-payCol"
-                  onClick={() => handleTentChange("vipCount", "increment")}
+                  onClick={() => {
+                    handleChange("vipCount", "increment");
+                    clearErrors(["vipCount"]);
+                  }}
                 >
                   <HiOutlinePlus className="w-5 h-5 text-white " />
                 </button>
@@ -144,8 +138,11 @@ const TicketSelectionForm = ({ onNext }) => {
               <div className="grid grid-cols-3 gap-3 justify-center place-items-center">
                 <button
                   type="button"
-                  onClick={() => handleTentChange("regularCount", "decrement")}
-                  // className="p-1 border-[1px] border-black active:bg-gray-200 "
+                  aria-label="minus regular"
+                  onClick={() => {
+                    handleChange("regularCount", "decrement");
+                    clearErrors(["vipCount"]);
+                  }}
                   className="p-1   active:bg-gray-800 bg-payCol"
                 >
                   <HiOutlineMinus className="w-5 h-5 text-white" />
@@ -159,11 +156,14 @@ const TicketSelectionForm = ({ onNext }) => {
                   id="regular"
                   readOnly
                   className=" w-10 border-[1px] border-gray-400 text-center  text-lg"
-                  // value={regularCount} // Bruger den værdi, der er gemt i state
                 />
                 <button
                   type="button"
-                  onClick={() => handleTentChange("regularCount", "increment")}
+                  aria-label="plus regular"
+                  onClick={() => {
+                    handleChange("regularCount", "increment");
+                    clearErrors(["vipCount"]);
+                  }}
                   className="p-1   active:bg-gray-800 bg-payCol"
                 >
                   <HiOutlinePlus className="w-5 h-5 text-white" />
@@ -171,7 +171,9 @@ const TicketSelectionForm = ({ onNext }) => {
               </div>
             </div>
             {errors.vipCount && (
-              <span className="text-red-500">{errors.vipCount.message}</span>
+              <span className="text-red-500 text-sm">
+                {errors.vipCount.message}
+              </span>
             )}
           </div>
           <p className="font-medium italic place-self-end">

@@ -17,9 +17,9 @@ const Payment = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
 
-  useEffect(() => {
-    console.log("FormData efter opdatering:", formData);
-  }, [formData]); // Kun kald når formData ændres
+  // useEffect(() => {
+  //   console.log("FormData efter opdatering:", formData);
+  // }, [formData]); // Kun kald når formData ændres
 
   const nextStep = (data) => {
     setFormData((prev) => ({ ...prev, ...data }));

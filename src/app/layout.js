@@ -20,8 +20,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={inter.variable}>
       <body className="bg-background font-sans ">
         <Header />
-
-        {children}
+        <main>{children}</main>
         <Footer />
       </body>
     </html>
