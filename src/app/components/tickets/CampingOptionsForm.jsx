@@ -1,14 +1,9 @@
 "use client";
 import { IoCheckmark } from "react-icons/io5";
-import { CiSquareMinus } from "react-icons/ci";
 import { useState, useEffect } from "react";
 import { useContext } from "react";
-import { getAvailableSpots, putReserveSpot } from "@/app/lib/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { validering } from "@/app/lib/validation";
-import { CiSquarePlus } from "react-icons/ci";
-import ReservationTimer from "./ReservationTimer";
 import { HiOutlineMinus } from "react-icons/hi";
 import { HiOutlinePlus } from "react-icons/hi";
 import { GiCampingTent } from "react-icons/gi";
@@ -18,11 +13,11 @@ import { z } from "zod";
 const CampingOptionsForm = ({ onNext, onBack, formData }) => {
   const validering = z
     .object({
-      addTentSetup: z.boolean().default(false), // Tilkøb af teltopsætning
-      greenCamping: z.boolean().default(false), // Grøn camping
+      addTentSetup: z.boolean(), // Tilkøb af teltopsætning
+      greenCamping: z.boolean(), // Grøn camping
       tent2p: z.number().min(0),
       tent3p: z.number().min(0),
-      area: z.string().min(1, "Du skal vælge et campingområde"), // Campingområdet skal vælges
+      area: z.string().min(1, "Du mangler at vælge et campingområde"), // Campingområdet skal vælges
     })
 
     .refine(
@@ -44,22 +39,22 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
       },
       {
         message:
-          "Antallet af telte skal matche antallet af billetter, eller du skal vælge et telt, hvis du har én billet",
+          "Antallet af telte skal matche antallet af billetter, eller du skal vælge ét telt, hvis du har én billet",
         path: ["addTentSetup"], // Fejlbesked relateret til 3-personers telte
       }
     );
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue, // bruges til at sætte værdier dynamisk, f.eks. når vi ændrer område på vores knapper
     watch,
-    trigger,
+
     clearErrors,
   } = useForm({
     resolver: zodResolver(validering),
-    // mode: "onBlur",
-    // reValidateMode: "onSubmit",
+
     mood: "onchange",
     reValidateMode: "onSubmit",
     defaultValues: {
@@ -76,6 +71,8 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
 
   const { updateCartData } = useContext(KviteringContext); // Få adgang til updateCartData
   const { startReservation } = useContext(KviteringContext);
+  const totalTickets = formData.totalTickets;
+  console.log("formdata camping", formData);
 
   useEffect(() => {
     const subscription = watch((data) => {
@@ -102,33 +99,22 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
       .then((response) => response.json())
       .then((areaData) => {
         setAvailableSpots(areaData);
-        console.log("her får vi data", areaData);
+        console.log("camping områder", areaData);
       })
-      .catch((err) => console.error("her kommer fejl ", err));
+      .catch((err) => console.error("her kommer fejl camping ", err));
   }, []);
 
-  // Håndterer valget af et campingområde
-  // const tik = formData.totalTickets;
-  // console.log("tik", tik);
   const handleAreaSelection = (area) => {
     const selectedSpot = availableSpots.find((spot) => spot.area === area); // Finder det valgte område
-    const totalTickets = formData.totalTickets;
-    // const totalTickets = // Beregn total billetter (VIP + Regular)
-    //   (formData.vipCount || 0) + (formData.regularCount || 0);
 
     if (!selectedSpot || totalTickets > selectedSpot.available) {
-      // setFormError(
-      //   `Området "${area}" er ikke tilgængeligt. Vælg et andet område.`
-      // );
       setSelectedArea(null);
       setValue("area", ""); // Fjern værdien fra formularen
     } else {
-      // setFormError(""); // Fjern fejlmeddelelse
       setSelectedArea(area);
       setValue("area", area); // Sæt værdien i formularen
-
-      // skal værwe her!!!
       updateCartData({ area });
+
       // Opdater de tilgængelige pladser
       const updatedSpots = availableSpots.map((spot) => {
         if (spot.area === area) {
@@ -153,14 +139,7 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
   };
   // console.log("fomdat camping", formData);
   const onSubmit = (data) => {
-    if (!data.area) {
-      setFormError("Du skal vælge et campingområde, før du kan fortsætte.");
-      return;
-    }
-    const totalTickets = // Beregn total billetter (VIP + Regular)
-      (formData.vipCount || 0) + (formData.regularCount || 0);
     console.log("resevation", data);
-
     fetch("https://cerulean-abrupt-sunshine.glitch.me/reserve-spot", {
       method: "PUT",
       headers: {
@@ -199,9 +178,9 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
           {/* <div className=" "></div> */}
           <div className="">
             <div className="">
-              <h2 className="text-xl font-medium">Camping område *</h2>
-              <p className="font-Inter text-base text-neutral-700 pb-2">
-                vælg det område du ønsker at campe i.
+              <h2 className="text-xl  font-medium">Valg af campingområde *</h2>
+              <p className="font-Inter text-base  text-neutral-800 pb-2">
+                Du skal vælge, hvor du ønsker at campere under festivalen.
               </p>
             </div>
             <div className="flex flex-wrap pt-4 px-4 pb-5 border-[1px]  gap-x-2   ">
@@ -218,16 +197,17 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                       id={spot.area}
                       value={spot.area}
                       {...register("area")} // Binding til formular
-                      // onClick={() => clearErrors(["area"])}
+                      onClick={() => clearErrors(["area"])}
                       onChange={() => handleAreaSelection(spot.area)} // Validering
                       disabled={isDisabled} // Deaktiver området hvis der er for mange billetter
                     />
+
                     <label
                       htmlFor={spot.area}
-                      className={`border-[1px] border-payCol cursor-pointer leading-none  text-payCol  bg-payCol/10  flex flex-col  items-center py-2 px-4 text-center   text-lg
-            peer-checked:bg-payCol peer-checked:text-white
+                      className={`border-[1px] border-payColcursor-pointer leading-none  text-payCol  bg-payCol/10  flex flex-col  items-center py-2 px-4 text-center   text-lg
+            peer-checked:bg-payCol peer-checked:text-white peer-checked:hover:bg-blue-700 
             hover:bg-gray-200 transition-all duration-200
-            ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            ${isDisabled ? "opacity-50  cursor-default" : ""}`}
                     >
                       {spot.area}
                       <span className="text-xs mt-1 flex items-center gap-1">
@@ -241,13 +221,15 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
             </div>
 
             {errors.area && (
-              <p className="text-red-500 text-sm">{errors.area.message}</p>
+              <p className="text-red-500 text-base pt-2">
+                {errors.area.message}
+              </p>
             )}
 
             {/* {selectedArea && <p>Du har valgt campingområde: {selectedArea}</p>} */}
           </div>
           {/* Telte */}
-          <h3 className="text-xl font-medium pt-4">Telt opsætning</h3>
+          <h3 className="text-xl font-medium pt-4">Teltopsætning</h3>
           <div className="">
             <div className="flex mt-3 border-[1px] justify-between p-4 mb-2">
               <input
@@ -257,7 +239,7 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                 {...register("addTentSetup")}
               />
 
-              <span>Få telte at op af et crew </span>
+              <span>Bestil opsætning af telt. </span>
               <label
                 // className="text-lg"
                 htmlFor="addTentSetup"
@@ -269,9 +251,15 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
 
             {watch("addTentSetup") && (
               <div className=" ">
-                <p className="italic text-sm text-neutral-700 pb-2">
-                  Obs! Antal pladser i teltene skal matche antal billetter (
-                  {(formData.vipCount || 0) + (formData.regularCount || 0)})
+                <p className=" text-base text-neutral-800 pb-2 ">
+                  <strong>Bemærk:</strong> Antal pladser i teltene skal matche
+                  antal billetter{" "}
+                  <span className=" font-semibold">
+                    ({(formData.vipCount || 0) + (formData.regularCount || 0)})
+                  </span>
+                  .
+                  <br />
+                  Gælder kun hvis der købes mere end en billet.
                 </p>
 
                 {/* {errors.tent2p && (
@@ -286,7 +274,7 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                   <div className=" grid grid-cols-3 gap-3 justify-center place-items-center">
                     <button
                       type="button"
-                      className="p-1   active:bg-gray-800 bg-payCol"
+                      className="p-1   active:bg-gray-800 bg-payCol  hover:bg-blue-700"
                       onClick={() => {
                         handleTentChange("tent2p", "decrement");
                         clearErrors(["addTentSetup"]);
@@ -312,7 +300,7 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                         handleTentChange("tent2p", "increment");
                         clearErrors(["addTentSetup"]);
                       }}
-                      className="p-1   active:bg-gray-800 bg-payCol"
+                      className="p-1   active:bg-gray-800 bg-payCol  hover:bg-blue-700"
                     >
                       <HiOutlinePlus className="w-5 h-5 text-white" />
                     </button>
@@ -321,7 +309,8 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
 
                 <div className="flex justify-between items-center p-4 border-[1px]   mb-4">
                   <label htmlFor="tent3p" className="text-lg">
-                    3-personers telt +399,-
+                    3-personers telt{" "}
+                    <span className="font-semibold"> +399,-</span>
                   </label>
                   <div className="grid grid-cols-3 gap-3 justify-center place-items-center">
                     <button
@@ -330,7 +319,7 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                         handleTentChange("tent3p", "decrement");
                         clearErrors(["addTentSetup"]);
                       }}
-                      className="p-1   active:bg-gray-800 bg-payCol"
+                      className="p-1   active:bg-gray-800 bg-payCol  hover:bg-blue-700"
                     >
                       <HiOutlineMinus className="w-5 h-5 text-white " />
                     </button>
@@ -349,7 +338,7 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                         handleTentChange("tent3p", "increment");
                         clearErrors(["addTentSetup"]);
                       }}
-                      className="p-1   active:bg-gray-800 bg-payCol"
+                      className="p-1   active:bg-gray-800 bg-payCol  hover:bg-blue-700"
                     >
                       <HiOutlinePlus className="w-5 h-5 text-white " />
                     </button>
@@ -365,7 +354,11 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
           </div>
           {/* Grøn camping */}
           <h4 className="text-xl font-medium pt-4">Grøn Camping</h4>
-          <div className="py-4 border-[1px] mt-4">
+          <p className=" text-base text-neutral-800  pb-2 ">
+            Vær med til at reducere festivalens klimaaftryk, ved at Støtte
+            Klimaskovfonden med 249kr.
+          </p>
+          <div className="py-4 border-[1px] ">
             <div className="flex justify-between items-center px-4">
               <input
                 className="hidden peer" // Skjul standard checkboks
@@ -373,7 +366,9 @@ const CampingOptionsForm = ({ onNext, onBack, formData }) => {
                 id="greenCamping"
                 {...register("greenCamping")}
               />
-              <span className="">Grøn camping +249,- </span>
+              <span className="">
+                Grøn camping <span className="font-semibold">+249,-</span>{" "}
+              </span>
 
               <label
                 htmlFor="greenCamping"

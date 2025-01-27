@@ -8,7 +8,7 @@ const Tickets = ({}) => {
         billettyper
       </h1>
       <div className="flex justify-center lg:flex-row md:flex-row sm:flex-col  lg:gap-32 sm:gap-10 items-center ">
-        <Bilet type="regular" price="799,-" />
+        <Bilet type="standard" price="799,-" />
         <Bilet type="vip" price="1299,-" />
       </div>
       {/* <Link

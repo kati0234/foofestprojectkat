@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 const StepBar = ({ step }) => {
   const steps = [
     { id: 1, label: "Billetter" },
-    { id: 2, label: "Informationer" },
+    { id: 2, label: "Registrering" },
     { id: 3, label: "Camping" },
     { id: 4, label: "Betaling " },
     { id: 5, label: "Fuldført" },
@@ -42,8 +42,8 @@ const StepBar = ({ step }) => {
                   step === id
                     ? "text-[#2463EB] font-bold"
                     : step > id
-                    ? "text-gray-500"
-                    : "text-gray-400"
+                    ? "text-black"
+                    : "text-black"
                 } max-sm:hidden sm:hidden md:block lg:block`}
               >
                 {label}

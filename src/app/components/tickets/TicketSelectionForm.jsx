@@ -20,7 +20,6 @@ const TicketSelectionForm = ({ onNext }) => {
         .number()
         .min(0, "Antal Regular billetter skal være et positivt tal"),
     })
-
     .refine((data) => data.vipCount > 0 || data.regularCount > 0, {
       message: "Du skal vælge mindst én billet",
       path: ["vipCount"], // Eller "regularCount" hvis du vil vise fejlen på det ene felt
@@ -29,29 +28,29 @@ const TicketSelectionForm = ({ onNext }) => {
   const {
     register,
     handleSubmit,
-    setValue, // bruges til knapper
+    setValue,
     formState: { errors },
     clearErrors,
     watch, // Brug watch til at få værdierne af formularfelterne
   } = useForm({
-    resolver: zodResolver(validering), // Brug Zod-validering
+    resolver: zodResolver(validering),
     mode: "onchange",
     reValidateMode: "onSubmit",
-
     defaultValues: {
       vipCount: 0, // Standardværdi for vipCount
       regularCount: 0, // Standardværdi for regularCount
     },
   });
+
   // bruges til kvitriengen
   const { updateCartData } = useContext(KviteringContext);
 
   // bruges til at opdater total ticket nok
-  const vipCount = watch("vipCount", 0); // Standardværdi 0
-  const regularCount = watch("regularCount", 0); // Standardværdi 0
+  const vipCount = watch("vipCount"); // Standardværdi 0
+  const regularCount = watch("regularCount"); // Standardværdi 0
 
-  // const totalTick = vipCount + regularCount;
   const totalTickets = vipCount + regularCount;
+
   const handleChange = (type, operation) => {
     const currentValue = watch(type);
     let newValue =
@@ -59,6 +58,7 @@ const TicketSelectionForm = ({ onNext }) => {
     if (newValue < 0) newValue = 0; // Undgå negative værdier
 
     // Kun tillad ændringen, hvis den samlede mængde ikke overstiger 8
+
     if (totalTickets < 8 || (operation === "decrement" && newValue >= 0)) {
       setValue(type, newValue);
       updateCartData({ [type]: newValue });
@@ -66,8 +66,6 @@ const TicketSelectionForm = ({ onNext }) => {
   };
 
   const onSubmit = (data) => {
-    // Send både de eksisterende data og den samlede pris
-    console.log("Form submitted:", data);
     onNext({
       ...data,
       totalTickets,
@@ -76,19 +74,14 @@ const TicketSelectionForm = ({ onNext }) => {
 
   return (
     <div>
-      <div className=" ">
-        <h1 className="text-stor font-medium text-payCol">Billetter</h1>
-      </div>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-1 mt-4 "
-      >
+      <h1 className="text-stor font-medium text-payCol">Billetter</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 mt-4">
         <div className="bg-white border-[1px] p-10">
-          <h2 className="text-xl font-medium  ">Vælg bilet type </h2>
-          <p className=" italic text-payCol text-sm pb-2">
-            max antal billeter 8{" "}
+          <h2 className="text-xl font-medium ">Vælg dine billetter </h2>
+          <p className="  text-neutral-600 text-base pb-4 leading-5">
+            Max antal billetter: 8
           </p>
-          <div className=" place-self-center w-full  ">
+          <div className=" place-self-center w-full ">
             <div className="flex justify-between items-center p-4 gap-10  mb-4  bg-white border-[1px]  ">
               <label htmlFor="vip" className="text-lg">
                 VIP <strong> 1299,- </strong>
@@ -98,7 +91,13 @@ const TicketSelectionForm = ({ onNext }) => {
                 <button
                   type="button"
                   aria-label="minus vip"
-                  className="p-1   active:bg-gray-800 bg-payCol"
+                  className="p-1   active:bg-gray-800 bg-payCol  hover:bg-blue-700"
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp")
+                      handleChange("vipCount", "increment");
+                    if (e.key === "ArrowDown")
+                      handleChange("vipCount", "decrement");
+                  }}
                   onClick={() => {
                     handleChange("vipCount", "decrement");
                     clearErrors(["vipCount"]);
@@ -116,11 +115,13 @@ const TicketSelectionForm = ({ onNext }) => {
                   max="8"
                   className=" w-10 border-[1px] border-gray-400 text-center  text-lg"
                   readOnly
+                  aria-live="polite"
+                  aria-describedby="fejl-besked"
                 />
                 <button
                   aria-label="plus vip"
                   type="button"
-                  className="p-1   active:bg-gray-800 bg-payCol"
+                  className="p-1   active:bg-gray-800 bg-payCol  hover:bg-blue-700"
                   onClick={() => {
                     handleChange("vipCount", "increment");
                     clearErrors(["vipCount"]);
@@ -133,17 +134,17 @@ const TicketSelectionForm = ({ onNext }) => {
             {/* //bg-[#f4f4f4] */}
             <div className="flex justify-between items-center p-4   mb-4  bg-white border-[1px]    ">
               <label htmlFor="regular" className="text-lg">
-                Standart <strong> 799,-</strong>
+                Standard <strong> 799,-</strong>
               </label>
               <div className="grid grid-cols-3 gap-3 justify-center place-items-center">
                 <button
                   type="button"
-                  aria-label="minus regular"
+                  aria-label="minus standard"
                   onClick={() => {
                     handleChange("regularCount", "decrement");
                     clearErrors(["vipCount"]);
                   }}
-                  className="p-1   active:bg-gray-800 bg-payCol"
+                  className="p-1   active:bg-gray-800 bg-payCol  hover:bg-blue-700"
                 >
                   <HiOutlineMinus className="w-5 h-5 text-white" />
                 </button>
@@ -155,34 +156,35 @@ const TicketSelectionForm = ({ onNext }) => {
                   max="8"
                   id="regular"
                   readOnly
+                  aria-describedby="fejl-besked"
                   className=" w-10 border-[1px] border-gray-400 text-center  text-lg"
                 />
                 <button
                   type="button"
-                  aria-label="plus regular"
+                  aria-label="plus standard"
                   onClick={() => {
                     handleChange("regularCount", "increment");
                     clearErrors(["vipCount"]);
                   }}
-                  className="p-1   active:bg-gray-800 bg-payCol"
+                  className="p-1   active:bg-gray-800 bg-payCol hover:bg-blue-700"
                 >
                   <HiOutlinePlus className="w-5 h-5 text-white" />
                 </button>
               </div>
             </div>
             {errors.vipCount && (
-              <span className="text-red-500 text-sm">
+              <span id="fejl-besked" className="text-red-500 text-sm">
                 {errors.vipCount.message}
               </span>
             )}
           </div>
-          <p className="font-medium italic place-self-end">
-            Billetter valgt i alt ({totalTickets})
+          <p className=" italic place-self-end pr-2">
+            Billetter valgt i alt <strong> ({totalTickets})</strong>
           </p>
         </div>
         <button
           type="submit"
-          className="bg-[#2463EB] py-2 px-3 self-end place-self-end text-white text-lg mt-4"
+          className="bg-payCol active:bg-gray-800 py-2 px-3 self-end place-self-end  text-white text-lg mt-4"
         >
           Fortsæt
         </button>

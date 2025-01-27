@@ -5,7 +5,7 @@ const MenuList = ({ setIsOpen, isOpen }) => {
     setIsOpen(false); // Lukker menuen
   };
   const links = [
-    { href: "/lineup", label: "Lineup" },
+    { href: "/artister", label: "Artister" },
     { href: "/program", label: "Program" },
     { href: "/billetter", label: "Billetter" },
     { href: "/", label: "Home" },

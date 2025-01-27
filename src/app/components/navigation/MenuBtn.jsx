@@ -20,7 +20,13 @@ const MenuBtn = ({ isOpen, setIsOpen }) => {
       >
         <motion.span
           className="absolute h-1 w-7 bg-white  text-black"
-          style={{ left: "50%", top: "35%", x: "-50%", y: "-50%" }}
+          initial={{
+            rotate: "0deg",
+            y: "-50%",
+            x: "-50%",
+            left: "50%",
+            top: "35%",
+          }}
           variants={{
             open: {
               rotate: ["0deg", "45deg"],
@@ -31,11 +37,16 @@ const MenuBtn = ({ isOpen, setIsOpen }) => {
               top: ["50%", "50%", "35%"],
             },
           }}
-          initial={{ rotate: "0deg" }}
         />
         <motion.span
           className="absolute h-1 w-7 bg-white"
-          style={{ left: "50%", top: "50%", x: "-50%", y: "-50%" }}
+          initial={{
+            rotate: "0deg",
+            left: "50%",
+            top: "50%",
+            x: "-50%",
+            y: "-50%",
+          }}
           variants={{
             open: {
               rotate: ["0deg", "-45deg"],
@@ -44,11 +55,11 @@ const MenuBtn = ({ isOpen, setIsOpen }) => {
               rotate: ["-45deg", "0deg"],
             },
           }}
-          initial={{ rotate: "0deg" }}
         />
         <motion.span
           className="absolute h-1 w-4 bg-white"
-          style={{
+          initial={{
+            rotate: "0deg",
             left: "calc(50% + 6px)",
             bottom: "35%",
             x: "-50%",
@@ -66,7 +77,6 @@ const MenuBtn = ({ isOpen, setIsOpen }) => {
               bottom: ["50%", "35%"],
             },
           }}
-          initial={{ rotate: "0deg" }}
         />
       </motion.button>
     </MotionConfig>

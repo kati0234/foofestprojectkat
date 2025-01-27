@@ -30,7 +30,7 @@ const GenreFilter = ({ setFilterGenre, bandData, setFilter }) => {
     // Fjern styling for alle labels
     document.querySelectorAll(".genre-label").forEach((label) => {
       label.classList.remove("bg-green", "text-black");
-      label.classList.add("bg-white", "text-black");
+      label.classList.add("text-background", "text-black");
     });
   };
 
@@ -46,7 +46,7 @@ const GenreFilter = ({ setFilterGenre, bandData, setFilter }) => {
         {genres.map((genre) => (
           <label
             key={genre}
-            className="genre-label border-2 text-mid border-black p-2 text-center w-fit text-black cursor-pointer"
+            className="genre-label border-2 bg-background text-mid border-black  p-2 text-center w-fit text-black cursor-pointer"
           >
             <input
               type="checkbox"

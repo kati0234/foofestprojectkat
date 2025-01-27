@@ -5,7 +5,7 @@ const ProgramItem = ({ item }) => {
     <li className="border-2 border-black bg-background transition-colors  mb-4 w-full text-black  duration-150 ease-in-out hover:scale-110 hover:bg-green  ">
       {/* linker til linup slug*/}
       <Link
-        href={`/lineup/${
+        href={`/artister/${
           act
             .toLowerCase()
             .replace(/,\s*/g, "-") // Fjern kommaer og mellemrum efter kommaer

@@ -43,7 +43,7 @@ const TodaysActs = ({ schedule }) => {
             >
               <Link
                 className="flex flex-nowrap gap-3"
-                href={`/lineup/${
+                href={`/artister/${
                   act.act
                     .toLowerCase()
                     .replace(/,\s*/g, "-") // Fjern kommaer og mellemrum efter kommaer

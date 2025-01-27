@@ -20,7 +20,7 @@ const ArtistCard = ({ band, events }) => {
       className="h-80 grid grid-rows-1 grid-cols-1 group text-black border-2 border-black "
     >
       <Link
-        href={`/lineup/${slug}`}
+        href={`/artister/${slug}`}
         // data-band={JSON.stringify(band)}
         className="grid h-full w-full grid-rows-[1fr] group grid-cols-[1fr]"
       >
@@ -43,27 +43,24 @@ const ArtistCard = ({ band, events }) => {
             {genre}
           </h3>
 
-          <div className="absolute h-96 w-full bg-green/90 flex items-center justify-center bottom-10 group-hover:bottom-0 group-hover:opacity-100 opacity-0 transition-all duration-300 z-20">
+          <div className="absolute h-full w-full bg-customPink-fallback/90 flex items-center justify-center group-hover:bottom-0 group-hover:opacity-100 opacity-0 transition-all duration-300 z-20">
             {/* {firstEvent && ( */}
-            <div className=" flex flex-col-reverse justify-between self-end pl-2 pb-2">
-              <h2 className="font-extrabold italic text-5xl">
-                Playing at {location}
-              </h2>
-
+            <div className=" flex flex-col-reverse justify-center items-center  ">
               <div className="self-start">
-                <div className=" pl-2">
-                  <p className="text-lg text-black">
-                    <strong>dag:</strong> {dayNames[day]}
-                  </p>
-                </div>
-                <div className="p-2 ">
-                  <p className="text-lg">
-                    <strong>Tidspunkt: </strong>
-                    <span className="text-nowrap">
-                      {start} - {end}
-                    </span>
-                  </p>
-                </div>
+                <p className="pl-2 text-lg">
+                  <strong>scene:</strong> {location}
+                </p>
+
+                <p className=" pl-2 text-lg text-black">
+                  <strong>dag:</strong> {dayNames[day]}
+                </p>
+
+                <p className="text-lg pl-2">
+                  <strong>Tidspunkt: </strong>
+                  <span className="text-nowrap">
+                    {start} - {end}
+                  </span>
+                </p>
               </div>
             </div>
             {/* // )} */}
